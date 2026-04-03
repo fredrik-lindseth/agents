@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+# claude-delegate — route tasks to the right repo's Claude Code agent
+# Usage: claude-delegate <repo> "<task description>"
+#        claude-delegate --list
+#        claude-delegate <repo> --info
+
+set -euo pipefail
+
+# --- Config ---
+MAX_BUDGET="${CLAUDE_DELEGATE_BUDGET:-2}"
+PERMISSION_MODE="${CLAUDE_DELEGATE_PERMS:-auto}"
+OUTPUT_FORMAT="${CLAUDE_DELEGATE_FORMAT:-text}"
+LOG_DIR="$HOME/.claude/delegate-logs"
+
+# --- Agent Registry ---
+# Add new repos here: name|path|description
+REGISTRY="
+serveren|$HOME/dev/serveren|Ansible-managed homelab infrastructure, Docker, Caddy, SSH, secrets
+eiendomsoppslag|$HOME/dev/eiendomsoppslag|Eiendomsoppslag app — Rust backend, frontend, migrations, CI
+"
+
+resolve_repo() {
+  local name="$1"
+  echo "$REGISTRY" | while IFS='|' read -r rname rpath rdesc; do
+    [ -z "$rname" ] && continue
+    if [ "$rname" = "$name" ]; then
+      echo "$rpath"
+      return 0
+    fi
+  done
+}
+
+resolve_desc() {
+  local name="$1"
+  echo "$REGISTRY" | while IFS='|' read -r rname rpath rdesc; do
+    [ -z "$rname" ] && continue
+    if [ "$rname" = "$name" ]; then
+      echo "$rdesc"
+      return 0
+    fi
+  done
+}
+
+usage() {
+  echo "Usage: claude-delegate <repo> \"<task>\""
+  echo "       claude-delegate --list"
+  echo "       claude-delegate <repo> --info"
+  echo ""
+  echo "Environment:"
+  echo "  CLAUDE_DELEGATE_BUDGET  Max USD (default: 2)"
+  echo "  CLAUDE_DELEGATE_PERMS   Permission mode (default: auto)"
+  echo "  CLAUDE_DELEGATE_FORMAT  Output format: text|json|stream-json (default: text)"
+  exit 1
+}
+
+list_agents() {
+  echo "Available agents:"
+  echo "$REGISTRY" | while IFS='|' read -r rname rpath rdesc; do
+    [ -z "$rname" ] && continue
+    status="OK"
+    [ ! -d "$rpath" ] && status="MISSING"
+    printf "  %-20s %s [%s]\n" "$rname" "$rdesc" "$status"
+  done
+}
+
+# --- Main ---
+[ $# -lt 1 ] && usage
+
+if [ "$1" = "--list" ]; then
+  list_agents
+  exit 0
+fi
+
+REPO="$1"
+shift
+
+WORKDIR=$(resolve_repo "$REPO")
+
+if [ -z "$WORKDIR" ]; then
+  echo "Error: Unknown repo '$REPO'" >&2
+  list_agents >&2
+  exit 1
+fi
+
+if [ ! -d "$WORKDIR" ]; then
+  echo "Error: Directory $WORKDIR does not exist" >&2
+  exit 1
+fi
+
+if [ "${1:-}" = "--info" ]; then
+  echo "Agent: $REPO"
+  echo "Dir:   $WORKDIR"
+  echo "Desc:  $(resolve_desc "$REPO")"
+  [ -f "$WORKDIR/AGENTS.md" ] && echo "--- AGENTS.md ---" && head -30 "$WORKDIR/AGENTS.md"
+  exit 0
+fi
+
+TASK="$*"
+if [ -z "$TASK" ]; then
+  echo "Error: No task provided" >&2
+  usage
+fi
+
+# Ensure log dir exists
+mkdir -p "$LOG_DIR"
+LOGFILE="$LOG_DIR/$(date +%Y%m%d-%H%M%S)-${REPO}.log"
+
+echo "[delegate] Sending to $REPO: $TASK" >&2
+echo "[delegate] Budget: \$$MAX_BUDGET | Permissions: $PERMISSION_MODE" >&2
+
+cd "$WORKDIR"
+
+echo "$TASK" | claude -p \
+  --output-format "$OUTPUT_FORMAT" \
+  --max-budget-usd "$MAX_BUDGET" \
+  --permission-mode "$PERMISSION_MODE" \
+  2>"$LOGFILE"
+
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -ne 0 ]; then
+  echo "[delegate] Failed (exit $EXIT_CODE). Log: $LOGFILE" >&2
+fi
+
+exit $EXIT_CODE
