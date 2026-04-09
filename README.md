@@ -8,6 +8,7 @@ Reusable AI agent skills and personas for Claude Code and OpenCode.
 |-------|-------------|
 | [envision](skills/envision/SKILL.md) | Describe the unconstrained ideal version of a project — a north-star vision document |
 | [ove](skills/ove/SKILL.md) | Set up new Python projects or migrate existing ones to a modern 2025+ tooling stack (uv, ruff, pyright, hatchling) |
+| [test-lead](skills/test-lead/SKILL.md) | Senior testleder som planlegger teststrategi, teststruktur og driver implementering av en lagdelt test suite |
 
 ## Agents
 
