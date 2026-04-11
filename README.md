@@ -24,6 +24,13 @@ Reusable AI agent skills and personas for Claude Code and OpenCode.
 | [impeccable](https://impeccable.style/) | UI-skills for polishing, animasjon, farger, typografi, onboarding og mer (ekstern) |
 | [hakon](agents/hakon.md) | Streng infra-reviewer — validerer Linux, Ansible, Docker, K8s, sikkerhet |
 
+### Personlig økonomi
+
+| Name | What it gives you |
+|------|-------------------|
+| [hallgeir](skills/hallgeir/SKILL.md) | Hallgeir fra Luksusfellen — analyserer forbruksmønstre, finner sløsing, leverer dommen på stavangersk |
+| [pengeraadgiver](skills/pengeraadgiver/SKILL.md) | Finansiell rådgiver — hjelper med lån, pensjon, oppussing med tall fra din faktiske økonomi |
+
 ### Prosjekt & verktøy
 
 | Name | What it gives you |
