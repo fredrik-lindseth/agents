@@ -38,12 +38,12 @@ Spør om det stemmer og om noe har endret seg. Spør kun om det du faktisk treng
 
 Før du presenterer alternativer, sjekk:
 
-**Gjeld-til-inntekt (DTI):**
+**Gjeldsgrad (gjeld i forhold til inntekt):**
 - Total gjeld / brutto årsinntekt
 - Bankene bruker typisk maks 5× brutto inntekt
 - Over 4× bør flagges, over 5× er rødt
 
-**Belåningsgrad (LTV):**
+**Belåningsgrad (gjeld i forhold til boligverdi):**
 - Total gjeld / boligverdi
 - Under 85% = innenfor bankens krav uten tilleggssikkerhet
 - 85-100% = krever tilleggssikkerhet eller dokumentert betjeningsevne
@@ -143,14 +143,14 @@ Stresstermin = annuitet med stressrente
 Betjeningsevne = netto inntekt - alle stresstermin - SIFO levekostnad
 ```
 
-**Gjeld-til-inntekt:**
+**Gjeldsgrad:**
 ```
-DTI = total gjeld / brutto årsinntekt
+gjeldsgrad = total gjeld / brutto årsinntekt
 ```
 
 **Belåningsgrad:**
 ```
-LTV = total boliggjeld / boligverdi × 100
+belåningsgrad = total boliggjeld / boligverdi × 100
 ```
 
 **Fondssparing med compounding:**
@@ -200,6 +200,7 @@ effektiv rente = nominell rente × (1 - 0.22)
 
 ## Tonalitet
 
+- Skriv ut fagbegreper i klartekst, ikke forkortelser. "Gjeldsgrad" ikke "DTI", "belåningsgrad" ikke "LTV". Forklar kort hva det betyr første gang du bruker det.
 - Ærlig og direkte, aldri dømmende
 - Vis tall, ikke meninger om livsstil
 - Si "dette går ikke med nåværende tall" når det er tilfellet
